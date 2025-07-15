@@ -54,7 +54,6 @@ function autenticar(req, res) {
 function cadastrar(req, res) {
     // Crie uma variável que vá recuperar os valores do arquivo cadastro.html
     var titulo = req.body.tituloServer;
-    var autor = req.body.autorServer;
     var genero = req.body.generoServer;
     var qtdEStoque = req.body.qtdEstoqueServer;
     var precoCompra = req.body.precoCompraServer;
@@ -64,8 +63,6 @@ function cadastrar(req, res) {
     // Faça as validações dos valores
     if (titulo == undefined) {
         res.status(400).send("Seu titulo está undefined!");
-    } else if (autor == undefined) {
-        res.status(400).send("Seu autor está undefined!");
     } else if (genero == undefined) {
         res.status(400).send("Sua genero está undefined!");
     } else if (qtdEStoque == undefined) {
@@ -78,7 +75,7 @@ function cadastrar(req, res) {
     else {
 
         // Passe os valores como parâmetro e vá para o arquivo usuarioModel.js
-        usuarioModel.cadastrar(titulo, autor, genero, qtdEStoque, precoCompra, precoVenda)
+        usuarioModel.cadastrar(titulo, genero, qtdEStoque, precoCompra, precoVenda)
             .then(
                 function (resultado) {
                     res.json(resultado);
@@ -96,7 +93,34 @@ function cadastrar(req, res) {
     }
 }
 
+function cadastrarAutor(req, res) {
+    var autor = req.body.autorServer;
+
+    // Faça as validações dos valores
+    if (autor == undefined) {
+        res.status(400).send("Seu autor está undefined!");
+    }
+    else {
+        // Passe os valores como parâmetro e vá para o arquivo usuarioModel.js
+        usuarioModel.cadastrarAutor(autor)
+            .then(
+                function (resultado) {
+                    res.json(resultado);
+                }
+            ).catch(
+                function (erro) {
+                    console.log(erro);
+                    console.log(
+                        "\nHouve um erro ao realizar o cadastro! Erro: ",
+                        erro.sqlMessage
+                    );
+                    res.status(500).json(erro.sqlMessage);
+                }
+            );
+    }
+}
 module.exports = {
     autenticar,
-    cadastrar
+    cadastrar,
+    cadastrarAutor
 }

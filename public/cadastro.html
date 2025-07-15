@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" />
 </head>
 
-<body onload="listar()">
+<body>
   <!--header inicio-->
   <div class="header">
     <div class="container">
@@ -63,7 +63,13 @@
           </div>
           <div class="campo">
             <span>Gênero do livro:</span>
-            <input id="genero_input" type="text" placeholder="Digite" />
+            <select id="genero_select">
+              <option value="horror">Horror</option>
+              <option value="romance">Romance</option>
+              <option value="poesia">Poesia</option>
+              <option value="fantasia">Fantasia</option>
+            </select>
+            
           </div>
           <div class="campo">
             <span>Preço de compra:</span>
@@ -111,17 +117,15 @@
     //Recupere o valor da nova input pelo nome do id
     // Agora vá para o método fetch logo abaixo
     var titulo = titulo_input.value;
-    var autor = autor_input.value;
-    var genero = genero_input.value;
-    var precoCompra = preco_compra_input.value;
-    var precoVenda = preco_venda_input.value;
+    var genero = genero_select.value;
+    var precoCompra = Number(preco_compra_input.value);
+    var precoVenda = Number(preco_venda_input.value);
     var qtdEstoque = qtd_estoque_input.value;
-    var caracteresInvalidos = ['!', '@', '$', '_', '-', '<', '>', '#', '&', '(', ')', '%', '*', '{', '}', '[', ']', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+    var fkGenero = 0;
 
     // Verificando se há algum campo em branco
     if (
       titulo == "" ||
-      autor == "" ||
       genero == "" ||
       precoCompra == "" ||
       precoCompra == "" ||
@@ -136,21 +140,22 @@
     } else {
       setInterval(sumirMensagem, 5000);
     }
-
-    // Verificando se o código de ativação é de alguma empresa cadastrada
-    for (let i = 0; i < autor.length; i++) {
-      for (var cont = 0; cont < caracteresInvalidos; cont++) {
-        if (autor[i] == caracteresInvalidos[cont]) {
-          cardErro.style.display = "block";
-          mensagem_erro.innerHTML = "(Mensagem de erro para caractere inválido)";
-          finalizarAguardar();
-        } else {
-          idEmpresaVincular = livrosCadastrados[i].id
-          console.log("Nome de autor válido.");
-        }
-      }
-
-
+    if(precoCompra > 100 && (genero == "horror" || genero == "romance")){
+      precoVenda = precoVenda + ((precoCompra / 100) * 22.5);
+    } else if (precoCompra < 50 && (genero == "poesia" || genero == 'horror')){
+      precoVenda = precoVenda + ((precoCompra / 100) * 25);
+    } else if (precoCompra > 50 && precoCompra < 100 && (genero == 'fantasia')){
+      precoVenda = precoVenda + ((precoCompra / 100) * 27.5);
+    } 
+    if(genero == 'horror'){
+      fkGenero = 2
+    } else if (genero == 'poesia'){
+      fkGenero = 1
+    } else if (genero == 'romance'){
+      fkGenero = 3
+    } else {
+      fkGenero = 4
+    }
       // Enviando o valor da nova input
       fetch("/usuarios/cadastrar", {
         method: "POST",
@@ -161,7 +166,6 @@
           // crie um atributo que recebe o valor recuperado aqui
           // Agora vá para o arquivo routes/usuario.js
           tituloServer: titulo,
-          autorServer: autor,
           qtdEstoqueServer: qtdEstoque,
           generoServer: genero,
           precoCompraServer: precoCompra,
@@ -194,8 +198,6 @@
 
       return false;
     }
-
-    // Listando empresas cadastradas 
     function listar() {
       fetch("/empresas/listar", {
         method: "GET",
@@ -204,9 +206,8 @@
           resposta.json().then((empresas) => {
             empresas.forEach((empresa) => {
               livrosCadastrados.push(empresa);
-
               console.log("livrosCadastrados")
-              console.log(livrosCadastrados[0].codigo_ativacao)
+              div_livros.innerHTML += `livrosCadastrados[0] <br>`
             });
           });
         })
@@ -218,5 +219,4 @@
     function sumirMensagem() {
       cardErro.style.display = "none";
     }
-  }
 </script>

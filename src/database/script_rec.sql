@@ -29,3 +29,8 @@ values ('Poesia'),
 ('Romance'),
 ('Fantasia');
 
+insert into autor (nome)
+values ('Bram Stoker'),
+('Mary SHelley'),
+('J.K Rowling');
+
